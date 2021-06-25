@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/akups/S3_bucket-pratice#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "apollo-server-express": "^2.25.2",
+    "express": "^4.17.1",
+    "graphql": "^15.5.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
