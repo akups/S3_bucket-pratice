@@ -3,8 +3,14 @@ const { ApolloServer, gql } = require('apollo-server-express');
 
 // Construct a schema, using GraphQL schema language
 const typeDefs = gql`
+type Invoice {
+    id:ID
+    iban: String
+    vatNumber:String
+  }
   type Query {
     hello: String
+    invoiceList: [Invoice]
   }
 `;
 
@@ -12,6 +18,13 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     hello: () => 'Hello world!',
+    invoiceList: ()=> {
+      return  [{
+          id:'abcd124',
+          iban:'DE80500105178153863472',
+          vatNumber:'DE70070'
+      }]
+    }
   },
 };
 
