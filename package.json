@@ -19,10 +19,13 @@
   "homepage": "https://github.com/akups/S3_bucket-pratice#readme",
   "dependencies": {
     "apollo-server-express": "^2.25.2",
+    "aws-sdk": "^2.934.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "graphql": "^15.5.1"
   },
   "devDependencies": {
+    "dotenv": "^10.0.0",
     "nodemon": "^2.0.7"
   }
 }
