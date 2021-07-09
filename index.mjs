@@ -1,25 +1,32 @@
-require('dotenv').config();
-const  cors = require('cors')
+import dotenv from "dotenv";
+import cors from "cors";
+import { Invoice } from "./src/model.mjs";
+import { connectToDb } from "./src/database.mjs";
+import AWS from "aws-sdk";
+import express from "express";
+import { ApolloServer, gql } from "apollo-server-express";
 
-const AWS= require("aws-sdk");
-const express = require('express');
-const { ApolloServer, gql } = require('apollo-server-express');
+dotenv.config()
 
 // Construct a schema, using GraphQL schema language
-const config ={
-    s3_config: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-        destinationBucketName: process.env.AWS_DESTINATION_BUCKET_NAME,
-        region: 'eu-central-1',
-    }
-}
+const config = {
+  s3_config: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    destinationBucketName: process.env.AWS_DESTINATION_BUCKET_NAME,
+    region: "eu-central-1",
+  },
+  mongo_url: process.env.MONGO_URL,
+};
+
+//connecting to the database
+connectToDb(config.mongo_url);
 
 const typeDefs = gql`
-type Invoice {
-    id:ID
+  type Invoice {
+    id: ID
     iban: String
-    vatNumber:String
+    vatNumber: String
   }
   type Query {
     hello: String
@@ -32,24 +39,17 @@ type Invoice {
     url: String!
   }
   type Mutation {
-   
     singleUpload(file: Upload!, invoiceId: ID): UploadedFileResponse!
   }
-
 `;
-
 
 // Provide resolver functions for your schema fields
 const resolvers = {
   Query: {
-    hello: () => 'Hello world!',
-    invoiceList: ()=> {
-      return  [{
-          id:'abcd124',
-          iban:'DE80500105178153863472',
-          vatNumber:'DE70070'
-      }]
-    }
+    hello: () => "Hello world!",
+    invoiceList: () => {
+      return Invoice.find({});
+    },
   },
   Mutation: {
     singleUpload: async (root, args) => {
@@ -79,13 +79,16 @@ const resolvers = {
       const data = await s3.upload(params).promise();
       return { filename, mimetype, encoding, url: data.Location };
     },
+    invoiceList: () => {
+      return Invoice.Create({});
+    },
   },
 };
 
 const server = new ApolloServer({ typeDefs, resolvers });
 
 const app = express();
-app.use(cors())
+app.use(cors());
 server.applyMiddleware({ app });
 
 app.listen({ port: 4000 }, () =>
