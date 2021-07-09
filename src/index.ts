@@ -5,7 +5,7 @@ import { connectToDb } from "./database";
 import AWS from "aws-sdk";
 import express from "express";
 import { ApolloServer, gql } from "apollo-server-express";
-import uuid from "uuid"
+import { v4 as uuidv4 } from 'uuid';
 
 dotenv.config();
 
@@ -89,7 +89,7 @@ const resolvers = {
       return Invoice.create(
         {
           ...args.input, 
-          id: uuid.v4()
+          id: uuidv4()
         }
       );
     },
