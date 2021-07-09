@@ -1,12 +1,13 @@
 import dotenv from "dotenv";
 import cors from "cors";
-import { Invoice } from "./src/model.mjs";
-import { connectToDb } from "./src/database.mjs";
+import { Invoice } from "./model";
+import { connectToDb } from "./database";
 import AWS from "aws-sdk";
 import express from "express";
 import { ApolloServer, gql } from "apollo-server-express";
+import uuid from "uuid"
 
-dotenv.config()
+dotenv.config();
 
 // Construct a schema, using GraphQL schema language
 const config = {
@@ -38,8 +39,13 @@ const typeDefs = gql`
     encoding: String!
     url: String!
   }
+  input CreateInvoice {
+    iban: String
+    vatNumber: String
+  }
   type Mutation {
     singleUpload(file: Upload!, invoiceId: ID): UploadedFileResponse!
+    createInvoice(input: CreateInvoice): Invoice
   }
 `;
 
@@ -79,8 +85,13 @@ const resolvers = {
       const data = await s3.upload(params).promise();
       return { filename, mimetype, encoding, url: data.Location };
     },
-    invoiceList: () => {
-      return Invoice.Create({});
+    createInvoice: (root,args) => {
+      return Invoice.create(
+        {
+          ...args.input, 
+          id: uuid.v4()
+        }
+      );
     },
   },
 };
