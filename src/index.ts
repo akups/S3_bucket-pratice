@@ -5,7 +5,7 @@ import { connectToDb } from "./database";
 import AWS from "aws-sdk";
 import express from "express";
 import { ApolloServer, gql } from "apollo-server-express";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 dotenv.config();
 
@@ -23,11 +23,17 @@ const config = {
 //connecting to the database
 connectToDb(config.mongo_url);
 
+
+
 const typeDefs = gql`
   type Invoice {
     id: ID
     iban: String
     vatNumber: String
+    netPtice: Number
+    createdAt: Date
+    totalPrice: Number
+    vatRate: Number
   }
   type Query {
     hello: String
@@ -42,6 +48,10 @@ const typeDefs = gql`
   input CreateInvoice {
     iban: String
     vatNumber: String
+    netPtice: Number
+    createdAt: Date
+    totalPrice: Number
+    vatRate: Number
   }
   type Mutation {
     singleUpload(file: Upload!, invoiceId: ID): UploadedFileResponse!
@@ -85,13 +95,11 @@ const resolvers = {
       const data = await s3.upload(params).promise();
       return { filename, mimetype, encoding, url: data.Location };
     },
-    createInvoice: (root,args) => {
-      return Invoice.create(
-        {
-          ...args.input, 
-          id: uuidv4()
-        }
-      );
+    createInvoice: (root, args) => {
+      return Invoice.create({
+        ...args.input,
+        id: uuidv4(),
+      });
     },
   },
 };
